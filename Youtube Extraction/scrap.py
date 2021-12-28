@@ -109,8 +109,8 @@ def main():
     except KeyError:
         print('totalResults Key not Found!!')
 
-    with open(contentType + '_' +  Id + '.json', 'w', encoding='utf-8') as outfile:
-        json.dump(rawResponse, outfile)
+    """ with open(contentType + '_' +  Id + '.json', 'w', encoding='utf-8') as outfile:
+        json.dump(rawResponse, outfile) """
 
     with open(contentType + '_' +  Id + '.txt', 'w', encoding='utf-8') as outfile:
         for line in finalData:
