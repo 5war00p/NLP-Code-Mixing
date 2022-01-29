@@ -15,15 +15,15 @@ def getComments(tweets):
 
     text = []
     next_token = ''
-    window_count = 0
+    count = 0
     for index, tweet in enumerate(tweets):
 
-        if window_count == MAX_SEARCH_TWT_LIMIT:
+        if count == MAX_SEARCH_TWT_LIMIT:
             break
         
         while True:
 
-            if window_count == MAX_SEARCH_TWT_LIMIT:
+            if count == MAX_SEARCH_TWT_LIMIT:
                 break
 
             if next_token != '':
@@ -34,19 +34,19 @@ def getComments(tweets):
             
             response = connect_to_endpoint(url)
 
-            window_count += 1
+            count += 1
             
             print('tweet-{}_{}_{}'.format(index+1, tweet, next_token))
             
-            if 'next_token' in response['meta']:
+            if 'data' in response:
+                for twt in response['data']:
+                    text.append(twt['text'])
+
+            if 'meta' in response and 'next_token' in response['meta']:
                 next_token = response['meta']['next_token']
             else:
                 break
-            
-            for twt in response['data']:
-                text.append(twt['text'])
 
-    
     return text
 
 def getTweetComments(data):
@@ -63,7 +63,6 @@ def getTweetComments(data):
         id = user["id"]
         tweetIDs[id] = []
         
-        
         if window_count == MAX_TWT_LOOKUP:
             break
 
@@ -78,19 +77,17 @@ def getTweetComments(data):
                 url = f'https://api.twitter.com/2/users/{id}/tweets?&max_results=100'
 
             response = connect_to_endpoint(url)
-
             window_count += 1
 
-            if 'next_token' in response['meta']:
-                next_token = response['meta']['next_token']
+            if 'data' in response:
+                tweetIDs[id].extend([twt['id'] for twt in response['data']])
             
+            if 'meta' in response and 'next_token' in response['meta']:
+                next_token = response['meta']['next_token']
             else:
                 break
-
-            tweetIDs[id].extend([twt['id'] for twt in response['data']])
-
-        
         text = getComments(tweetIDs[id])
+        print(text)
         with open(user['username'] + '.txt', 'w', encoding='utf-8') as outfile:
             for line in text:
                 outfile.write("%s\n" % line)
@@ -126,7 +123,7 @@ def connect_to_endpoint(url):
 
 
 def main():
-    usernames = input('Enter usernames "," separated: ')
+    usernames = input('Enter usernames just with "," separated: ')
     users = getUserIDs(usernames)
     getTweetComments(users)
 
