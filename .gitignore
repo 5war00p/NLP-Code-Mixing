@@ -112,3 +112,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# all data files (.txt)
+*.txt
