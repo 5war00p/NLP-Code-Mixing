@@ -82,10 +82,13 @@ def main():
         Id = input('Enter playListID: ')
         videoIds = reqPlaylistVideos(Id)
         for vID in videoIds:
-            response = reqCommentThreads(vID)
-            rawResponse.append(response)
-            data = filterJSON(response)
-            finalData.extend(data)
+            try:
+                response = reqCommentThreads(vID)
+                rawResponse.append(response)
+                data = filterJSON(response)
+                finalData.extend(data)
+            except:
+                pass
     else:
         Id = input('Enter videoID: ')
         response = reqCommentThreads(Id)
@@ -101,10 +104,13 @@ def main():
                 break
 
             nextPageToken = response['nextPageToken']
-            response = reqCommentThreads(Id, nextPageToken)
-            rawResponse.append(response)
-            data = filterJSON(response)
-            finalData.extend(data)
+            try:
+                response = reqCommentThreads(Id, nextPageToken)
+                rawResponse.append(response)
+                data = filterJSON(response)
+                finalData.extend(data)
+            except:
+                pass
 
     except KeyError:
         print('totalResults Key not Found!!')
