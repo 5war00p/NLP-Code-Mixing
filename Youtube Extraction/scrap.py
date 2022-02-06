@@ -1,5 +1,4 @@
 import os
-import json
 from dotenv import load_dotenv
 import googleapiclient.discovery
 
@@ -67,58 +66,123 @@ def filterJSON(response):
             print('textDisplay Key not Found!!')
 
     return comments_data
+    
+
+def byPlaylists(filename):
+
+    fd = open(filename + '.txt', 'r', encoding='utf-8')
+    playlistIDs = fd.readlines()
+
+    for index, playlistID in enumerate(playlistIDs):
+        finalData = []
+        playlistID = playlistID.replace('\n', '')
+        try:
+            videoIds = reqPlaylistVideos(playlistID)
+            for vID in videoIds:
+                try:
+                    response = reqCommentThreads(vID)
+                    data = filterJSON(response)
+                    finalData.extend(data)
+
+                    try:
+                        totalPages = response['pageInfo']['totalResults']
+                        for _ in range(totalPages):
+                            
+                            if 'nextPageToken' not in response:
+                                break
+
+                            nextPageToken = response['nextPageToken']
+                            try:
+                                response = reqCommentThreads(Id, nextPageToken)
+                                data = filterJSON(response)
+                                finalData.extend(data)
+                            except:
+                                pass
+
+                    except KeyError:
+                        print('totalResults Key not Found!!')
+                        
+                except:
+                    pass
+            print(f'playlist-{index+1}_{playlistID}')
+        except:
+            print(f'playlist-{index+1}_{playlistID}_skipped')
+
+        export(playlistID, finalData)
+
+def export(fname, finalData):
+    with open(fname + '.txt', 'w', encoding='utf-8') as outfile:
+        for line in finalData:
+            outfile.write("%s\n" % line)
 
 def main():
 
-    choice = int(input('''Wanna give videoID(0) or playlistID(1) ?\nChoose either (0 or 1): '''))
+    choice = int(input('''Wanna give videoID(0) or playlistID(1) or multiple-Playlists(2)?\nChoose either (0 or 1 or 2): '''))
     
     Id = None
-    rawResponse = []
     finalData = []
 
-    if choice:
+    if choice == 1:
         Id = input('Enter playListID: ')
         videoIds = reqPlaylistVideos(Id)
         for vID in videoIds:
             try:
                 response = reqCommentThreads(vID)
-                rawResponse.append(response)
                 data = filterJSON(response)
                 finalData.extend(data)
+
+                try:
+                    totalPages = response['pageInfo']['totalResults']
+                    for _ in range(totalPages):
+                        
+                        if 'nextPageToken' not in response:
+                            break
+
+                        nextPageToken = response['nextPageToken']
+                        try:
+                            response = reqCommentThreads(Id, nextPageToken)
+                            data = filterJSON(response)
+                            finalData.extend(data)
+                        except:
+                            pass
+
+                except KeyError:
+                    print('totalResults Key not Found!!')
+
+                print(f'playlist-{Id}_{vID}')
             except:
                 pass
-    else:
+        export(Id, finalData)
+        
+    elif choice == 0:
         Id = input('Enter videoID: ')
         response = reqCommentThreads(Id)
-        rawResponse.append(response)
         data = filterJSON(response)
         finalData.extend(data)
 
-    try:
-        totalPages = response['pageInfo']['totalResults']
-        for _ in range(totalPages):
-            
-            if 'nextPageToken' not in response:
-                break
+        try:
+            totalPages = response['pageInfo']['totalResults']
+            for _ in range(totalPages):
+                
+                if 'nextPageToken' not in response:
+                    break
 
-            nextPageToken = response['nextPageToken']
-            try:
-                response = reqCommentThreads(Id, nextPageToken)
-                rawResponse.append(response)
-                data = filterJSON(response)
-                finalData.extend(data)
-            except:
-                pass
+                nextPageToken = response['nextPageToken']
+                try:
+                    response = reqCommentThreads(Id, nextPageToken)
+                    data = filterJSON(response)
+                    finalData.extend(data)
+                except:
+                    pass
 
-    except KeyError:
-        print('totalResults Key not Found!!')
+        except KeyError:
+            print('totalResults Key not Found!!')
+        
+        export(Id, finalData)
+    elif choice == 2:
+        fname = input('Enter filename that contains all playlist IDs: ')
+        finalData.extend(byPlaylists(fname))
 
-    """ with open(contentType + '_' +  Id + '.json', 'w', encoding='utf-8') as outfile:
-        json.dump(rawResponse, outfile) """
-
-    with open(Id + '.txt', 'w', encoding='utf-8') as outfile:
-        for line in finalData:
-            outfile.write("%s\n" % line)
 
 if __name__ == "__main__":
     main()
