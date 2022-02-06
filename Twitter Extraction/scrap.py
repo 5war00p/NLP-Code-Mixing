@@ -39,6 +39,7 @@ def getComments(tweets):
             if 'meta' in response and 'next_token' in response['meta']:
                 next_token = response['meta']['next_token']
             else:
+                next_token=''
                 break
 
     return text
