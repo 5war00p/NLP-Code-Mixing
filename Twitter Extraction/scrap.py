@@ -15,16 +15,12 @@ def getComments(tweets):
 
     text = []
     next_token = ''
-    count = 0
     for index, tweet in enumerate(tweets):
 
-        if count == MAX_SEARCH_TWT_LIMIT:
+        if index == MAX_SEARCH_TWT_LIMIT:
             break
-        
-        while True:
 
-            if count == MAX_SEARCH_TWT_LIMIT:
-                break
+        while True:
 
             if next_token != '':
                 url = f'https://api.twitter.com/2/tweets/search/recent?query=conversation_id:{tweet}&max_results=100&next_token={next_token}'
@@ -33,8 +29,6 @@ def getComments(tweets):
 
             
             response = connect_to_endpoint(url)
-
-            count += 1
             
             print('tweet-{}_{}_{}'.format(index+1, tweet, next_token))
             
