@@ -72,8 +72,6 @@ def main():
 
     choice = int(input('''Wanna give videoID(0) or playlistID(1) ?\nChoose either (0 or 1): '''))
     
-    contentType = input('Enter type of content: ')
-
     Id = None
     rawResponse = []
     finalData = []
@@ -118,7 +116,7 @@ def main():
     """ with open(contentType + '_' +  Id + '.json', 'w', encoding='utf-8') as outfile:
         json.dump(rawResponse, outfile) """
 
-    with open(contentType + '_' +  Id + '.txt', 'w', encoding='utf-8') as outfile:
+    with open(Id + '.txt', 'w', encoding='utf-8') as outfile:
         for line in finalData:
             outfile.write("%s\n" % line)
 
