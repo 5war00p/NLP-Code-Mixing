@@ -11,24 +11,30 @@ bearer_token = os.getenv('TWITTER_API_KEY')
 
 def getComments(tweets):
 
-    MAX_SEARCH_TWT_LIMIT = 270
+    MAX_SEARCH_TWT_LIMIT = 700 #270
 
     text = []
     next_token = ''
+    count = 0
     for index, tweet in enumerate(tweets):
 
-        if index == MAX_SEARCH_TWT_LIMIT:
+        if count == MAX_SEARCH_TWT_LIMIT:
             break
 
         while True:
+
+            if count == MAX_SEARCH_TWT_LIMIT:
+                break
 
             if next_token != '':
                 url = f'https://api.twitter.com/2/tweets/search/recent?query=conversation_id:{tweet}&max_results=100&next_token={next_token}'
             else:
                 url = f'https://api.twitter.com/2/tweets/search/recent?query=conversation_id:{tweet}&max_results=100'
 
-            
-            response = connect_to_endpoint(url)
+            try:
+                response = connect_to_endpoint(url)
+            except:
+                return text
             
             print('tweet-{}_{}_{}'.format(index+1, tweet, next_token))
             
@@ -41,6 +47,8 @@ def getComments(tweets):
             else:
                 next_token=''
                 break
+
+            count += 1
 
     return text
 
