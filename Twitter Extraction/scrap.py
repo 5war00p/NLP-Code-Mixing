@@ -86,8 +86,8 @@ def getTweetComments(data):
                 next_token = response['meta']['next_token']
             else:
                 break
+
         text = getComments(tweetIDs[id])
-        print(text)
         with open(user['username'] + '.txt', 'w', encoding='utf-8') as outfile:
             for line in text:
                 outfile.write("%s\n" % line)
@@ -123,7 +123,7 @@ def connect_to_endpoint(url):
 
 
 def main():
-    usernames = input('Enter usernames just with "," separated: ')
+    usernames = input('Enter username: ')
     users = getUserIDs(usernames)
     getTweetComments(users)
 
